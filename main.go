@@ -23,8 +23,8 @@ func main() {
 	}
 	wg := sync.WaitGroup{}
 	// i is each HTTP request
-	process := 20
-	logEachProcess := 100
+	process := 2
+	logEachProcess := 1000
 	for i := 0; i < process; i++ {
 		wg.Add(1)
 		go func(x int) {
@@ -45,11 +45,10 @@ func main() {
 	//select {
 	//case <-term:
 	//}
-	qChan := make(chan struct{})
 	//graceful wait x second
-	time.Sleep(10 * time.Second)
+	time.Sleep(9 * time.Second)
 	/* ALERT @CHRISTIAN ok here's the problem.
-	karena process nya go routine, bisa aja pas WaitForEmptyQueue .size udah 0
+	karena process nya go routine, bisa aja pas Close .size udah 0
 	tapi masih ada .append() yang belum dijalanin.
 
 	OR
@@ -63,12 +62,7 @@ func main() {
 	harusnya last process (or http request) AND the remaining log flush can be done in 10s graceful time
 
 	*/
-	go oalog.WaitForEmptyQueue(qChan)
-	<-qChan
-	fmt.Println("queue is empty, terminating")
-
-	time.Sleep(5 * time.Second)
-	fmt.Println("graceful time for empty q")
+	oalog.Close()
 
 	file, err := os.Open(fileName)
 	if err != nil {
