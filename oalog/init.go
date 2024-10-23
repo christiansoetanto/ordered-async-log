@@ -32,6 +32,7 @@ func New() error {
 		return err
 	}
 	q = new(queue)
+	q.msgChan = make(chan item)
 	processQueue()
 	return nil
 }
